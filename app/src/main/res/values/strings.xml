@@ -18,4 +18,7 @@
     <string name="button_enter_name">Jouer!</string>
     <string name="put_ship_error">impossible de placer le navire ici</string>
     <string name="win">Gagné</string>
+
+    <string name="player_name_play">Play!</string>
+    <string name="player_name_type_name">What\'s your name?</string>
 </resources>
