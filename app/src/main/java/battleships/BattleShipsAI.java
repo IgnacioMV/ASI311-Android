@@ -149,8 +149,30 @@ public class BattleShipsAI {
             dx = -1;
         }
 
-        int ix = x;
-        int iy = y;
+        int ix, iy;
+
+        for (int i = -1; i < 2; i++) {
+            if (o == AbstractShip.Orientation.EAST || o == AbstractShip.Orientation.WEST) {
+                ix = x-dx;
+                iy = y+i;
+            }
+            else {
+                ix = x+i;
+                iy = y-dy;
+            }
+            for (int j = -1; j <= ship.getLength(); ++j) {
+                if (ix > -1 && iy > -1 && ix < 10 && iy < 10) {
+                    if (board.hasShip(ix, iy)) {
+                        return false;
+                    }
+                }
+                ix += dx;
+                iy += dy;
+            }
+        }
+
+        ix = x;
+        iy = y;
 
         for (int i = 0; i < ship.getLength(); ++i) {
             if (board.hasShip(ix, iy)) {

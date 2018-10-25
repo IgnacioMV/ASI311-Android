@@ -117,6 +117,27 @@
                         android:text="@string/west" />
                 </RadioGroup>
 
+                <Button
+                    android:id="@+id/putship_reset_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/putship_radios_orientation"
+                    android:text="@string/putship_reset"
+                    android:onClick="onResetShipsClick"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+                <Button
+                    android:id="@+id/putship_gotogame_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/putship_radios_orientation"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:visibility="gone"
+                    android:onClick="onGoToGameActivityClick"
+                    android:text="@string/go_to_game"/>
+
             </RelativeLayout>
 
         </RelativeLayout>

@@ -14,15 +14,22 @@ import battleships.ship.BattleShip;
 public class DrawableBattleship extends BattleShip implements DrawableShip {
 
     //TODO insert map declaration
-
+    static final Map<Orientation, Integer> DRAWABLES = new HashMap<>();
 
     //TODO add static block using myMap.put(key, value) to initialize map.
     //TODO key = the ship orientation and value = the drawable corresponding
-
+    static {
+        DRAWABLES.put(Orientation.NORTH, R.drawable.battleship_n);
+        DRAWABLES.put(Orientation.SOUTH, R.drawable.battleship_s);
+        DRAWABLES.put(Orientation.EAST, R.drawable.battleship_e);
+        DRAWABLES.put(Orientation.WEST, R.drawable.battleship_w);
+    }
 
     // TODO return the right drawable according to ship's orientation using the map
+
+
     @Override
     public int getDrawable() {
-        return 0;
+        return DRAWABLES.get(this.getOrientation());
     }
 }

@@ -30,4 +30,21 @@
         android:visibility="gone"
         android:textAppearance="@android:style/TextAppearance.Large"
         android:textAlignment="center" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/play_again_button"
+        android:layout_centerHorizontal="true"
+        android:text="Back to board"
+        android:onClick="onBackToBoardClick"/>
+
+    <Button
+        android:id="@+id/play_again_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Play again"
+        android:onClick="onPlayAgainClick"/>
 </RelativeLayout>

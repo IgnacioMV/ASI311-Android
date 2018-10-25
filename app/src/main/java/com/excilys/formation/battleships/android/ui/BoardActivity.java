@@ -1,16 +1,26 @@
 package com.excilys.formation.battleships.android.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Locale;
 
 import battleships.Board;
@@ -20,11 +30,20 @@ import battleships.formation.excilys.com.battleships.R;
 import battleships.ship.AbstractShip;
 
 
-public class BoardActivity extends AppCompatActivity {
+public class BoardActivity extends AppCompatActivity implements BoardGridFragment.BoardGridFragmentListener {
     private static final String TAG = BoardActivity.class.getSimpleName();
 
+    private SharedPreferences mPreferences;
+
+    @Override
+    public void onTileClick(int id, int x, int y) {
+        if (id == BoardController.HITS_FRAGMENT && mPlayerTurn) {
+            doPlayerTurn(x, y);
+        }
+    }
+
     private static class Default {
-        private static final int TURN_DELAY = 1000; // ms
+        private static final int TURN_DELAY = 5000; // ms
     }
 
     /* ***
@@ -33,6 +52,7 @@ public class BoardActivity extends AppCompatActivity {
     /** contains BoardFragments to display ships & hits grids */
     private CustomViewPager mViewPager;
     private TextView mInstructionTextView;
+    private CoordinatorLayout mCoordinatorLayout;
 
     /* ***
      * Attributes
@@ -54,6 +74,9 @@ public class BoardActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
+
         // Set up the ViewPager with the sections adapter.
         mViewPager = (CustomViewPager) findViewById(R.id.board_viewpager);
         mViewPager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
@@ -69,8 +92,22 @@ public class BoardActivity extends AppCompatActivity {
 
     // TODO  call me maybe
     private void doPlayerTurn(int x, int y) {
+
         mPlayerTurn = false;
         Hit hit = mOpponentBoard.sendHit(x, y);
+        System.out.println(hit);
+        if (hit == Hit.ALREADY_STRIKE) {
+            mPlayerTurn = true;
+            Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "Already hit", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+            return;
+        }
+        if (mBoardController.getHit(x,y) != null && !mBoardController.getHit(x,y)) {
+            mPlayerTurn = true;
+            Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "Already missed", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+            return;
+        }
         boolean strike = hit != Hit.MISS;
 
         mBoardController.setHit(strike, x, y);
@@ -81,11 +118,16 @@ public class BoardActivity extends AppCompatActivity {
             if (mDone) {
                 gotoScoreActivity();
             }
+            else {
+                mOpponentBoard.surroundShipWithMiss(mBoardController, x, y);
+            }
+
         } else {
             // TODO sleep a while...
-            mViewPager.setCurrentItem(BoardController.SHIPS_FRAGMENT);
+            sleep(Default.TURN_DELAY);
             mViewPager.setEnableSwipe(false);
             doOpponentTurn();
+            mViewPager.setCurrentItem(BoardController.SHIPS_FRAGMENT);
         }
         String msgToLog = String.format(Locale.US, "Hit (%d, %d) : %s", x, y, strike);
         Log.d(TAG, msgToLog);
@@ -109,11 +151,18 @@ public class BoardActivity extends AppCompatActivity {
                     int[] coordinate = new int[2];
                     hit = mOpponent.sendHit(coordinate);
                     strike = hit != Hit.MISS;
+
+                    List<int[]> coordinates = mBoardController.surroundShipWithMiss(mOpponentBoard, coordinate[0], coordinate[1]);
+                    for (int[] coord : coordinates) {
+                        publishProgress(DISPLAY_HIT, String.valueOf(false), String.valueOf(coord[0]), String.valueOf(coord[1]));
+                    }
+
                     publishProgress(DISPLAY_TEXT, makeHitMessage(true, coordinate, hit));
                     publishProgress(DISPLAY_HIT, String.valueOf(strike), String.valueOf(coordinate[0]), String.valueOf(coordinate[1]));
 
                     mDone = updateScore();
                     sleep(Default.TURN_DELAY);
+
                 } while(strike && !mDone);
                 return mDone;
             }
@@ -144,6 +193,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     private void gotoScoreActivity() {
+        mPlayerTurn = false;
         Intent intent = new Intent(this, ScoreActivity.class);
         intent.putExtra(ScoreActivity.Extra.WIN, mOpponent.lose);
         startActivity(intent);
@@ -236,5 +286,46 @@ public class BoardActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_game, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_restart_game:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Restart game?");
+
+// Add the buttons
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        BattleShipsApplication.getGame().init(BattleShipsApplication.getPlayers()[0].getName());
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+
+// Create the AlertDialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 }

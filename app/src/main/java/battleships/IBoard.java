@@ -1,6 +1,8 @@
 package battleships;
 
 
+import java.util.List;
+
 import battleships.ship.AbstractShip;
 
 public interface IBoard {
@@ -42,7 +44,7 @@ public interface IBoard {
      * @param x
      * @param y
      */
-    void setHit(boolean hit, int x, int y);
+    void setHit(Boolean hit, int x, int y);
 
     /**
      * Get the state of a hit at the given position
@@ -52,4 +54,6 @@ public interface IBoard {
      * @return
      */
     Boolean getHit(int x, int y);
+
+    List<int[]> surroundShipWithMiss(IBoard board, int x, int y);
 }

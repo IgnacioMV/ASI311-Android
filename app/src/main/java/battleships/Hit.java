@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 public enum Hit {
     MISS(-1, "manqué"),
     STIKE(-2, "touché"),
+    ALREADY_STRIKE(-3, "déjà touché"),
+    ALREADY_MISS(-4, "déjà manquée"),
     DESTROYER(2, "Frégate"),
     SUBMARINE(3, "Sous-marin"),
     BATTLESHIP(4, "Croiseur"),

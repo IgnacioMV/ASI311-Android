@@ -21,4 +21,9 @@
 
     <string name="player_name_play">Play!</string>
     <string name="player_name_type_name">What\'s your name?</string>
+    <string name="go_to_game">Start game!</string>
+    <string name="putship_reset">Reset</string>
+
+    <string name="change_name">Edit name</string>
+    <string name="restart_game">Restart</string>
 </resources>

@@ -1,5 +1,8 @@
 package battleships;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import battleships.ship.AbstractShip;
 
 import static battleships.ColorUtil.Color.BLUE;
@@ -88,14 +91,16 @@ public class Board implements IBoard {
 
     @Override
     public Hit sendHit(int x, int y) {
+        System.out.println("sendHit");
         ShipState state;
+        state = ships[x][y];
+        System.out.println(hits[x][y]);
 
         if (ships[x][y] == null) {
             return Hit.MISS;
         } else {
-            state = ships[x][y];
             if (state.isStruck()) {
-                return Hit.MISS;
+                return Hit.ALREADY_STRIKE;
             } else {
                 state.addStrike();
                 if (state.isSunk()) {
@@ -152,6 +157,26 @@ public class Board implements IBoard {
             iy += dy;
         }
 
+        for (int i = -1; i < 2; i++) {
+            if (o == AbstractShip.Orientation.EAST || o == AbstractShip.Orientation.WEST) {
+                ix = x-dx;
+                iy = y+i;
+            }
+            else {
+                ix = x+i;
+                iy = y-dy;
+            }
+            for (int j = -1; j <= ship.getLength(); ++j) {
+                if (ix > -1 && iy > -1 && ix < 10 && iy < 10) {
+                    if (hasShip(ix, iy)) {
+                        throw new ShipException("Ship overlays.");
+                    }
+                }
+                ix += dx;
+                iy += dy;
+            }
+        }
+
         ix = x;
         iy = y;
 
@@ -171,7 +196,7 @@ public class Board implements IBoard {
     }
 
     @Override
-    public void setHit(boolean hit, int x, int y) {
+    public void setHit(Boolean hit, int x, int y) {
         if (x > this.size || y > this.size) {
             throw new IllegalArgumentException("out of the grid.");
         }
@@ -184,5 +209,70 @@ public class Board implements IBoard {
             throw new IllegalArgumentException("out of the grid.");
         }
         return this.hits[x][y];
+    }
+
+    @Override
+    public List<int[]> surroundShipWithMiss(IBoard board, int x, int y) {
+        List<int[]> coordinates = new ArrayList<int[]>();
+
+        ShipState state = ships[x][y];
+        if (state == null) {
+            System.out.println("ShipState is null");
+            return coordinates;
+        }
+        AbstractShip ship = ships[x][y].getShip();
+        if (!ship.isSunk()) {
+            return coordinates;
+        }
+        System.out.println("surrounding sunk ship with misses");
+        AbstractShip.Orientation o = ship.getOrientation();
+        int dx = 0, dy = 0;
+        if (o == AbstractShip.Orientation.EAST) {
+            dx = 1;
+        } else if (o == AbstractShip.Orientation.SOUTH) {
+            dy = 1;
+        } else if (o == AbstractShip.Orientation.NORTH) {
+            dy = -1;
+        } else if (o == AbstractShip.Orientation.WEST) {
+            dx = -1;
+        }
+        int ix, iy, startX, startY;
+        startX = x;
+        startY = y;
+        while (ships[startX][startY] != null) {
+            startX -= dx;
+            startY -= dy;
+            if (startX < 0 || startX > 9 || startY < 0 || startY > 9) {
+                break;
+            }
+        }
+
+        startX += dx;
+        startY += dy;
+
+        for (int i = -1; i < 2; i++) {
+            if (o == AbstractShip.Orientation.EAST || o == AbstractShip.Orientation.WEST) {
+                ix = startX-dx;
+                iy = startY+i;
+            }
+            else {
+                ix = startX+i;
+                iy = startY-dy;
+            }
+            for (int j = -1; j <= ship.getLength(); ++j) {
+                System.out.println("marking ("+Integer.toString(ix)+","+Integer.toString(iy)+")");
+                if (ix > -1 && iy > -1 && ix < 10 && iy < 10) {
+                    Hit hit = sendHit(ix, iy);
+                    boolean strike = hit != Hit.MISS;
+                    board.setHit(strike, ix, iy);
+                    if (!strike) {
+                        coordinates.add(new int[]{ix, iy});
+                    }
+                }
+                ix += dx;
+                iy += dy;
+            }
+        }
+        return coordinates;
     }
 }
