@@ -8,6 +8,7 @@ public enum Hit {
     STIKE(-2, "touché"),
     ALREADY_STRIKE(-3, "déjà touché"),
     ALREADY_MISS(-4, "déjà manquée"),
+    FRIGATE(1, "Frigate"),
     DESTROYER(2, "Frégate"),
     SUBMARINE(3, "Sous-marin"),
     BATTLESHIP(4, "Croiseur"),

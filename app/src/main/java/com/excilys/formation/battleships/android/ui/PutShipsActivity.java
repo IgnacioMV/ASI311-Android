@@ -241,5 +241,6 @@ public class PutShipsActivity extends AppCompatActivity implements BoardGridFrag
         mCurrentShip = 0;
         int playerId = 0;
         BattleShipsApplication.getGame().init( BattleShipsApplication.getPlayers()[playerId].getName());
+        this.finish();
     }
 }

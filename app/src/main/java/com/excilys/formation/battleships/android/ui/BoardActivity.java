@@ -43,7 +43,7 @@ public class BoardActivity extends AppCompatActivity implements BoardGridFragmen
     }
 
     private static class Default {
-        private static final int TURN_DELAY = 5000; // ms
+        private static final int TURN_DELAY = 500; // ms
     }
 
     /* ***
@@ -124,7 +124,7 @@ public class BoardActivity extends AppCompatActivity implements BoardGridFragmen
 
         } else {
             // TODO sleep a while...
-            sleep(Default.TURN_DELAY);
+            //sleep(Default.TURN_DELAY);
             mViewPager.setEnableSwipe(false);
             doOpponentTurn();
             mViewPager.setCurrentItem(BoardController.SHIPS_FRAGMENT);
